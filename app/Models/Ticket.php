@@ -386,7 +386,7 @@ class Ticket extends AbstractModel
         if($userId){
             $sql .= " AND opened_by = :user_id ";
         }
-        $sql .= "group by month(opened_at) order by month(opened_at);";
+        $sql .= " group by month(opened_at) order by month(opened_at);";
 
         $statement = $this->connection->prepare($sql);
         $statement->bindParam(":year", $year, \PDO::PARAM_INT);
@@ -419,7 +419,7 @@ class Ticket extends AbstractModel
         if($userId){
             $sql .= " AND opened_by = :user_id ";
         }
-        $sql .= "group by categories.name order by categories.name;";
+        $sql .= " group by categories.name order by categories.name;";
 
         $statement = $this->connection->prepare($sql);
         $statement->bindParam(":year", $year);
