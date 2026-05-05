@@ -132,3 +132,4 @@ class UserDepartment extends AbstractModel
 
         return [];
     }
+}
