@@ -4,8 +4,9 @@ namespace App\Controllers\Teacher;
 
 use App\Core\Auth;
 use App\Core\Controller;
+use App\Core\Permission;
 use App\Models\Ticket;
-use App\Models\User;
+
 
 class DashboardController extends Controller
 {
@@ -13,7 +14,8 @@ class DashboardController extends Controller
     {
         parent::__construct("App");
 
-        Auth::requireRole(User::TEACHER);
+
+        Auth::requireRole(Permission::VIEW_REQUEST_DASHBOARD);
     }
 
     public function index(): void
