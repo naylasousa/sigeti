@@ -6,7 +6,7 @@ use App\Core\AbstractModel;
 use App\Models\Department\UserDepartment;
 use App\Models\Role\Role;
 use App\Models\Role\RolePermission;
-use http\Exception\InvalidArgumentException;
+
 
 class User extends AbstractModel
 {
@@ -135,7 +135,7 @@ class User extends AbstractModel
     public function setRoleId(?int $roleId): void
     {
         if ($roleId < 1) {
-            throw new InvalidArgumentException("O id do perfil do usuário é invalido");
+            throw new \InvalidArgumentException("O id do perfil do usuário é invalido");
         }
         $this->attributes["role_id"] = $roleId;
 
