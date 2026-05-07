@@ -66,9 +66,9 @@ class Permission
 
     //CATEGORIAS
     public const VIEW_CATEGORIES = 'ver_categoria';
-    public const CREATE_CATEGORIES = 'criar_categoria';
-    public const EDIT_CATEGORIES = 'editar_categoria';
-    public const DELETE_CATEGORIES = 'excluir_categoria';
+    public const CREATE_CATEGORY = 'criar_categoria';
+    public const EDIT_CATEGORY = 'editar_categoria';
+    public const DELETE_CATEGORY = 'excluir_categoria';
 
     //ESCOLAS
     public const VIEW_SCHOOLS = 'ver_escolas';
