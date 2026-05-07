@@ -4,8 +4,9 @@ namespace App\Controllers\Technician;
 
 use App\Core\Auth;
 use App\Core\Controller;
+use App\Core\Permission;
 use App\Models\Ticket;
-use App\Models\User;
+
 
 class DashboardController extends Controller
 {
@@ -13,7 +14,7 @@ class DashboardController extends Controller
     {
         parent::__construct("App");
 
-        Auth::requireRole(User::TECHNICIAN);
+        Auth::requireRole(Permission::VIEW_TECHNICIAN_DASHBOARD);
     }
 
     public function index(): void
