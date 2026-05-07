@@ -5,8 +5,9 @@ namespace App\Controllers\Technician;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Message;
+use App\Core\Permission;
 use App\Models\Category;
-use App\Models\User;
+
 
 class CategoryController extends Controller
 {
@@ -14,7 +15,7 @@ class CategoryController extends Controller
     {
         parent::__construct("App");
 
-        Auth::requireRole(User::TECHNICIAN);
+        Auth::requireRole(Permission::VIEW_CATEGORIES);
     }
 
     public function index(): void
@@ -28,11 +29,13 @@ class CategoryController extends Controller
 
     public function create(): void
     {
+        Auth::requireRole(Permission::CREATE_CATEGORY);
         echo $this->view->render("technician/category/create");
     }
 
     public function store(?array $data): void
     {
+        Auth::requireRole(Permission::CREATE_CATEGORY);
         $this->validateCsrfToken($data, "/tecnico/categorias/cadastrar");
 
         $newCategory = new Category();
@@ -72,6 +75,7 @@ class CategoryController extends Controller
 
     public function edit(?array $data): void
     {
+        Auth::requireRole(Permission::EDIT_CATEGORY);
         $category = Category::find($data['id']);
 
         if(!$category){
@@ -87,6 +91,7 @@ class CategoryController extends Controller
 
     public function update(?array $data): void
     {
+        Auth::requireRole(Permission::EDIT_CATEGORY);
         $this->validateCsrfToken($data, "/tecnico/categorias/editar/" . $data["id"]);
 
         $category = Category::find($data['id']);
@@ -125,8 +130,5 @@ class CategoryController extends Controller
 
     }
 
-    public function destroy(?array $data): void
-    {
 
-    }
 }
