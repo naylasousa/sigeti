@@ -20,7 +20,7 @@ class Permission extends AbstractModel
         "label" => "O Campo Label é obrigatório",
         "group_name" => "O Campo Grupo é obrigatório"
     ];
-    protected bool $timestamps = false;
+    protected bool $timestamps = true;
     protected bool $softDelete = false;
 
     public function getId(): int
