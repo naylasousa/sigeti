@@ -5,16 +5,17 @@ namespace App\Controllers\Technician;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Message;
+use App\Core\Permission;
 use App\Models\Ticket;
 use App\Models\TicketComment;
-use App\Models\User;
+
 
 class TicketCommentController extends Controller
 {
     public function __construct()
     {
         parent::__construct("App");
-        Auth::requireRole(User::TECHNICIAN);
+        Auth::requireRole(Permission::COMMENT_TICKET);
     }
 
     public function index(?array $data): void
@@ -88,5 +89,6 @@ class TicketCommentController extends Controller
         Message::success("Comentário adicionado com sucesso.");
         redirect("/tecnico/chamados/{$ticketId}/comentarios");
     }
+
 
 }
