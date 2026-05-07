@@ -17,6 +17,8 @@ class Category extends AbstractModel
         "name" => "O campo NOME é obrigatório."
     ];
     protected bool $timestamps = true;
+    protected bool $softDelete = true;
+
 
     public function getId(): ?int
     {
