@@ -14,29 +14,31 @@ class DashboardController extends Controller
     {
         parent::__construct("App");
 
-        Auth::requireRole(Permission::VIEW_TECHNICIAN_DASHBOARD);
+        Auth::requirePermission(Permission::VIEW_TECHNICIAN_DASHBOARD);
     }
 
     public function index(): void
-{
-    $ticketModel = new Ticket();
-    $tickets = (new  Ticket())->ticketsOrderedByStatusPriorityAndOpeningDate();
+    {
+        Auth::requirePermission(Permission::VIEW_TECHNICIAN_DASHBOARD);
 
-    $quantityTicketsByMonth = $ticketModel->countTicketsByMonth();
-    $quantityTicketsByCategory = $ticketModel->countTicketsByCategory();
-    $quantityTicketsByStatus = $ticketModel->countTicketsByStatus();
-    $avgResolutionDays = $ticketModel->avgResolutionDaysByMonthCurrentYear();
-    $ticketsByPriorityAndStatus = $ticketModel->countByPriorityAndStatusCurrentYear();
+        $ticketModel = new Ticket();
+        $tickets = (new  Ticket())->ticketsOrderedByStatusPriorityAndOpeningDate();
+
+        $quantityTicketsByMonth = $ticketModel->countTicketsByMonth();
+        $quantityTicketsByCategory = $ticketModel->countTicketsByCategory();
+        $quantityTicketsByStatus = $ticketModel->countTicketsByStatus();
+        $avgResolutionDays = $ticketModel->avgResolutionDaysByMonthCurrentYear();
+        $ticketsByPriorityAndStatus = $ticketModel->countByPriorityAndStatusCurrentYear();
 
 
-    echo $this->view->render("technician/dashboard",[
-        "tickets" => $tickets,
-        "quantityTicketsByMonth" => $quantityTicketsByMonth,
-        "quantityTicketsByCategory" => $quantityTicketsByCategory,
-        "quantityTicketsByStatus" => $quantityTicketsByStatus,
-        "avgResolutionDays" => $avgResolutionDays,
-        "ticketsByPriorityAndStatus" => $ticketsByPriorityAndStatus
-    ]);
-}
+        echo $this->view->render("technician/dashboard", [
+            "tickets" => $tickets,
+            "quantityTicketsByMonth" => $quantityTicketsByMonth,
+            "quantityTicketsByCategory" => $quantityTicketsByCategory,
+            "quantityTicketsByStatus" => $quantityTicketsByStatus,
+            "avgResolutionDays" => $avgResolutionDays,
+            "ticketsByPriorityAndStatus" => $ticketsByPriorityAndStatus
+        ]);
+    }
 
 }
