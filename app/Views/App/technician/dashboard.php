@@ -1,7 +1,6 @@
 <?= $this->layout('technician/app', [
         'title' => $title ?? "Dashboard | Técnico - " . APP_NAME,
-        'menuActive' => 'dashboard',
-        'quantityTicketsByMonth' => $quantityTicketsByMonth
+        'menuActive' => 'dashboard'
 ]) ?>
 
 <div id="main">
@@ -135,6 +134,16 @@
                             </div>
                         </div>
                     </div>
+                    <!--                    <div class="col-lg-4">-->
+                    <!--                        <div class="card">-->
+                    <!--                            <div class="card-header">-->
+                    <!--                                <h4>Taxa de <strong>Resolução</strong></h4>-->
+                    <!--                            </div>-->
+                    <!--                            <div class="card-body">-->
+                    <!--                                <div id="chart-resolution-rate"></div>-->
+                    <!--                            </div>-->
+                    <!--                        </div>-->
+                    <!--                    </div>-->
                     <div class="col-lg-4">
                         <div class="card">
                             <div class="card-header">
@@ -255,14 +264,20 @@
                                             </small>
                                         </td>
                                         <td>
-                                            <a href="<?= url('/tecnico/chamados/editar/' . $ticket->getId()) ?>"
-                                               class="btn btn-sm btn-warning">
-                                                <i class="bi bi-pencil-fill"></i> Editar
-                                            </a>
-                                            <a href="<?= url('/tecnico/chamados/' . $ticket->getId() . '/comentarios') ?>"
-                                               class="btn btn-sm btn-info">
-                                                <i class="bi bi-chat-dots-fill"></i> Comentar
-                                            </a>
+                                            <div class="d-flex gap-1 flex-wrap">
+                                                <a href="<?= url('/tecnico/chamados/editar/' . $ticket->getId()) ?>"
+                                                   class="btn btn-sm btn-warning"
+                                                   title="Editar">
+                                                    <i class="bi bi-pencil-fill"></i>
+                                                    <span class="d-none d-xl-inline ms-1">Editar</span>
+                                                </a>
+                                                <a href="<?= url('/tecnico/chamados/' . $ticket->getId() . '/comentarios') ?>"
+                                                   class="btn btn-sm btn-info"
+                                                   title="Comentar">
+                                                    <i class="bi bi-chat-dots-fill"></i>
+                                                    <span class="d-none d-xl-inline ms-1">Comentar</span>
+                                                </a>
+                                            </div>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -302,22 +317,14 @@
             </div>
         </div>
     </footer>
+
     <script>
         window.dashboardData = {
-            quantityTicketsByMonth: <?= json_encode($quantityTicketsByMonth ?? []) ?>,
-            quantityTicketsByCategory: <?= json_encode($quantityTicketsByCategory ?? []) ?>,
-            avgResolutionDays: <?= json_encode($avgResolutionDays ?? []) ?>,
-            ticketsByPriorityAndStatus: <?= json_encode($ticketsByPriorityAndStatus ?? []) ?>
-        }
+            quantityTicketsByMonth: <?= json_encode($quantityTicketsByMonth) ?>,
+            quantityTicketsByCategory: <?= json_encode($quantityTicketsByCategory) ?>,
+            resolutionRate: <?= json_encode($resolutionRate) ?>,
+            avgResolutionDays: <?= json_encode($avgResolutionDays) ?>,
+            ticketsByPriorityAndStatus: <?= json_encode($ticketsByPriorityAndStatus) ?>,
+        };
     </script>
-
-    <script>
-        window.dashboardData = <?= json_encode([
-                "quantityTicketsByMonth" => $quantityTicketsByMonth,
-                "quantityTicketsByCategory" => $quantityTicketsByCategory,
-                "avgResolutionDays" => $avgResolutionDays,
-                "ticketsByPriorityAndStatus" => $ticketsByPriorityAndStatus,
-        ]) ?>;
-    </script>
-
 </div>
