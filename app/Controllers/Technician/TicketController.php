@@ -18,11 +18,12 @@ class TicketController extends Controller
     public function __construct()
     {
         parent::__construct("App");
-        Auth::requireRole(Permission::VIEW_ALL_TICKETS);
+        Auth::requirePermission(Permission::VIEW_ALL_TICKETS);
     }
 
     public function index(): void
     {
+        Auth::requirePermission(Permission::VIEW_ALL_TICKETS);
         $tickets = (new Ticket())->ticketsOrderedByStatusPriorityAndOpeningDate();
 
         echo $this->view->render("technician/ticket/index", [
@@ -33,7 +34,7 @@ class TicketController extends Controller
 
     public function create(): void
     {
-        Auth::requireRole(Permission::OPEN_TICKET);
+        Auth::requirePermission(Permission::OPEN_TICKET);
         $schools = School::all();
         $categories = Category::all();
         $teachers = (Permission::OPEN_TICKET);
@@ -48,7 +49,7 @@ class TicketController extends Controller
 
     public function store(?array $data): void
     {
-        Auth::requireRole(Permission::EDIT_TICKET);
+        Auth::requirePermission(Permission::EDIT_TICKET);
 
         $this->validateCsrfToken($data, "/professor/chamados/cadastrar");
 
@@ -135,7 +136,7 @@ class TicketController extends Controller
     }
     public function edit(?array $data): void
     {
-        Auth::requireRole(Permission::EDIT_TICKET);
+        Auth::requirePermission(Permission::EDIT_TICKET);
         $technicians = User::usersByRole(User::TECHNICIAN);
 
         $ticket = Ticket::find($data["id"]);
@@ -153,7 +154,7 @@ class TicketController extends Controller
 
     public function update(?array $data): void
     {
-        Auth::requireRole(Permission::EDIT_TICKET);
+        Auth::requirePermission(Permission::EDIT_TICKET);
 
         $this->validateCsrfToken($data, "/tecnico/chamados/editar/" . $data['id']);
 

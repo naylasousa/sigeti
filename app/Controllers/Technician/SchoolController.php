@@ -15,7 +15,7 @@ class SchoolController extends Controller
     {
         parent::__construct("App");
 
-        Auth::requireRole(Permission::VIEW_SCHOOLS);
+        Auth::requirePermission(Permission::VIEW_SCHOOLS);
     }
 
     public function index(): void
@@ -35,7 +35,7 @@ class SchoolController extends Controller
 
     public function create(): void
     {
-        Auth::requireRole(Permission::CREATE_SCHOOL);
+        Auth::requirePermission(Permission::CREATE_SCHOOL);
         echo $this->view->render("technician/school/create");
 
         clear_old();
@@ -43,7 +43,7 @@ class SchoolController extends Controller
 
     public function store(?array $data): void
     {
-        Auth::requireRole(Permission::CREATE_SCHOOL);
+        Auth::requirePermission(Permission::CREATE_SCHOOL);
         $this->validateCsrfToken($data, "/tecnico/escolas/cadastrar");
 
         $newSchool = new School();
@@ -84,7 +84,7 @@ class SchoolController extends Controller
 
     public function edit(?array $data): void
     {
-        Auth::requireRole(Permission::EDIT_SCHOOL);
+        Auth::requirePermission(Permission::EDIT_SCHOOL);
         $school = School::find($data["id"]);
 
         if (!$school) {
@@ -102,7 +102,7 @@ class SchoolController extends Controller
 
     public function update(?array $data): void
     {
-        Auth::requireRole(Permission::EDIT_SCHOOL);
+        Auth::requirePermission(Permission::EDIT_SCHOOL);
         $this->validateCsrfToken($data, "/tecnico/escolas/editar/" . $data['id']);
 
         $school = School::find($data["id"]);
@@ -150,7 +150,7 @@ class SchoolController extends Controller
 
     public function destroy(?array $data): void
     {
-        Auth::requireRole(Permission::DELETE_SCHOOL);
+        Auth::requirePermission(Permission::DELETE_SCHOOL);
         $this->validateCsrfToken($data, "/tecnico/escolas");
 
         $school = School::find($data['id']);

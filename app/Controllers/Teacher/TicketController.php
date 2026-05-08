@@ -17,11 +17,12 @@ class TicketController extends Controller
     public function __construct()
     {
         parent::__construct("App");
-        Auth::requireRole(Permission::OPEN_TICKET);
+        Auth::requirePermission(Permission::VIEW_MY_TICKETS);
     }
 
     public function index(?array $data): void
     {
+
         $tickets = (new Ticket())
             ->ticketsOrderedByStatusPriorityAndOpeningDateByUser(Auth::user()->id);
         echo $this->view->render("teacher/ticket/index", [
@@ -31,6 +32,7 @@ class TicketController extends Controller
 
     public function create(): void
     {
+        Auth::requirePermission(Permission::OPEN_TICKET);
         $categories = Category::all();
         $links = SchoolUser::linksByUsers(Auth::user()->id);
         $schools = [];

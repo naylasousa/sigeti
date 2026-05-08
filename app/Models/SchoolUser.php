@@ -22,7 +22,7 @@ class SchoolUser extends AbstractModel
         "shift" => "O campo TURNO é obrigatório.",
     ];
 
-    protected bool $timestamps = false;
+    protected bool $timestamps = true;
 
     public const MORNING = "manha";
     public const AFTERNOON = "tarde";

@@ -15,7 +15,7 @@ class TicketCommentController extends Controller
     public function __construct()
     {
         parent::__construct("App");
-        Auth::requireRole(Permission::COMMENT_TICKET);
+        Auth::requirePermission(Permission::COMMENT_TICKET);
     }
 
     public function index(?array $data): void

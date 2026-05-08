@@ -20,6 +20,7 @@ class TicketComment extends AbstractModel
         "comment" => "O campo COMENTÁRIO é obrigatório."
     ];
     protected bool $timestamps = true;
+    protected bool $softDelete = true;
 
     public function getId(): ?int
     {

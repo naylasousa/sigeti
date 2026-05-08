@@ -16,7 +16,7 @@ class UserController extends Controller
     {
         parent::__construct("App");
 
-        Auth::requireRole(Permission::VIEW_USERS);
+        Auth::requirePermission(Permission::VIEW_USERS);
     }
     public function index(): void
     {
@@ -32,7 +32,7 @@ class UserController extends Controller
     }
     public function create(): void
     {
-        Auth::requireRole(Permission::CREATE_USER);
+        Auth::requirePermission(Permission::CREATE_USER);
         $schools = School::all();
         echo $this->view->render("technician/user/create", [
             "schools" => $schools
@@ -41,7 +41,7 @@ class UserController extends Controller
     }
     public function store(?array $data): void
     {
-        Auth::requireRole(Permission::CREATE_USER);
+        Auth::requirePermission(Permission::CREATE_USER);
         $this->validateCsrfToken($data, "/tecnico/usuarios/cadastrar");
 
         $newUser = new User();
@@ -96,7 +96,7 @@ class UserController extends Controller
 
     public function edit(?array $data): void
     {
-        Auth::requireRole(Permission::EDIT_USER);
+        Auth::requirePermission(Permission::EDIT_USER);
         $user = User::find($data["id"]);
 
         if (!$user) {
@@ -118,7 +118,7 @@ class UserController extends Controller
 
     public function update(?array $data): void
     {
-        Auth::requireRole(Permission::EDIT_USER);
+        Auth::requirePermission(Permission::EDIT_USER);
         $userId = $data["id"];
         $this->validateCsrfToken($data, "/tecnico/usuarios/cadastrar" . $userId);
         $user = User::find((int)$userId);
@@ -177,7 +177,7 @@ class UserController extends Controller
 
     public function destroy(?array $data): void
     {
-        Auth::requireRole(Permission::DELETE_USER);
+        Auth::requirePermission(Permission::DELETE_USER);
         try {
             $user = User::find($data['id']);
             $user->delete();

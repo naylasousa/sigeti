@@ -14,11 +14,12 @@ class DashboardController extends Controller
     {
         parent::__construct("App");
 
-        Auth::requireRole(Permission::VIEW_TECHNICIAN_DASHBOARD);
+        Auth::requirePermission(Permission::VIEW_TECHNICIAN_DASHBOARD);
     }
 
     public function index(): void
 {
+    Auth::requirePermission(Permission::VIEW_TECHNICIAN_DASHBOARD);
     $ticketModel = new Ticket();
     $tickets = (new  Ticket())->ticketsOrderedByStatusPriorityAndOpeningDate();
 

@@ -31,7 +31,7 @@ class TicketAttachment extends AbstractModel
         "file_size" => "O campo TAMANHO é obrigatório.",
     ];
 
-    protected bool $timestamps = false;
+    protected bool $timestamps = true;
 
     protected bool $softDelete = true;
 
