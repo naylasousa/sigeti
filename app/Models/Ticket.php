@@ -34,6 +34,8 @@ class Ticket extends AbstractModel
     protected bool $timestamps = true;
     protected bool $softDelete = true;
 
+    protected bool $softDelete = true;
+
     public const OPEN = "aberto";
     public const IN_PROGRESS = "em_andamento";
 

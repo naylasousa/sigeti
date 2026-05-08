@@ -27,17 +27,17 @@ class Permission
     public const DELETE_ANY_COMMENT = 'excluir_qualquer_comentario';
 
     //ANEXOS
-    public const  DELETE_OWN_ATTACHMENT = 'excluir_proprio_anexo';
+    public const DELETE_OWN_ATTACHMENT = 'excluir_proprio_anexo';
     public const DELETE_ANY_ATTACHMENT = 'excluir_qualquer_anexo';
     public const DOWNLOAD_ATTACHMENT = 'baixar_anexo';
 
     //DASHBOARD
-    public const  VIEW_REQUEST_DASHBOARD = 'ver_dashboard_solicitante';
+    public const VIEW_REQUESTER_DASHBOARD = 'ver_dashboard_solicitante';
     public const VIEW_TECHNICIAN_DASHBOARD = 'Ver_dashboard_tecnico';
     public const VIEW_MANAGER_DASHBOARD = 'ver_dashboard_gestor';
 
     //RELATORIOS
-    public const  VIEW_REPORTS = 'ver_relatorios';
+    public const VIEW_REPORTS = 'ver_relatorios';
     public const EXPORT_REPORTS = 'exportar_relatorios';
 
     //USUARIOS
