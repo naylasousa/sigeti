@@ -72,6 +72,13 @@ $router->get("/chamados/{ticket_id}/comentarios", "Teacher\\TicketCommentControl
 $router->post("/chamados/{ticket_id}/comentarios", "Teacher\\TicketCommentController@store");
 /*
 |--------------------------------------------------------------------------
+| Rotas do Admin
+|--------------------------------------------------------------------------
+*/
+$router->group("/dashboard");
+$router->get("/dashboard", "Admin\DashboardController@index");
+/*
+|--------------------------------------------------------------------------
 | Rotas de error
 |--------------------------------------------------------------------------
 */
