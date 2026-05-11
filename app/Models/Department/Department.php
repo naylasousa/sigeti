@@ -145,6 +145,19 @@ class Department extends AbstractModel
                 ->where("school_id", "=", $this->getId())
                 ->count() > 0;
     }
+    public function totalDepartments(): ?int
+    {
+        $instance = new static();
+        $sql = "SELECT COUNT(*) FROM departments
+                WHERE deleted_at is null";
+
+        $statement = $instance->connection->prepare($sql);
+        $statement->execute();
+
+        $totalDepartments = $statement->fetchColumn();
+        return $totalDepartments;
+
+    }
 
     public function validateBusinessRule(?int $ignoreId = null): array
     {
