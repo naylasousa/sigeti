@@ -336,6 +336,20 @@ class User extends AbstractModel
         $statement->execute($params);
         return (int)$statement->fetchColumn() > 0;
     }
+    public function totalUsers(): ?int
+    {
+        $instance = new static();
+        $sql = "SELECT COUNT(*) FROM users
+        WHERE deleted_at is null
+        AND status = 'ativo'";
+
+        $statement = $instance->connection->prepare($sql);
+        $statement->execute();
+
+        $totalUsers = $statement->fetchColumn();
+        return $totalUsers;
+
+    }
 
     public function validateBusinessRule(?int $ignoreId = null): array
     {
