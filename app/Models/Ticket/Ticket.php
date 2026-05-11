@@ -554,5 +554,19 @@ class Ticket extends AbstractModel
 
         return $result;
     }
+    public function totalOpenTickets(): ?int
+    {
+        $instance = new static();
+        $sql = "SELECT COUNT(*) FROM tickets
+                WHERE deleted_at is null
+                AND status = 'aberto'";
+
+        $statement = $instance->connection->prepare($sql);
+        $statement->execute();
+
+        $totalOpenTickets = $statement->fetchColumn();
+        return $totalOpenTickets;
+
+    }
 
 }
