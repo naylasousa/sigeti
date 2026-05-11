@@ -341,6 +341,20 @@ class User extends AbstractModel
         $instance = new static();
         $sql = "SELECT COUNT(*) FROM users
                 WHERE deleted_at is null
+                AND status = 'ativo'";
+
+        $statement = $instance->connection->prepare($sql);
+        $statement->execute();
+
+        $totalUsers = $statement->fetchColumn();
+        return $totalUsers;
+
+    }
+    public function recentUsers(): ?array
+    {
+        $instance = new static();
+        $sql = "SELECT * FROM users
+                WHERE deleted_at is null
                 AND status = 'inativo'
                 ORDER BY created_at DESC
                 LIMIT 5";
@@ -348,8 +362,13 @@ class User extends AbstractModel
         $statement = $instance->connection->prepare($sql);
         $statement->execute();
 
-        $totalUsers = $statement->fetchColumn();
-        return $totalUsers;
+        $rows = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        $results = [];
+        foreach ($rows as $row) {
+            $results[] = static::hydrate($row);
+        }
+
+        return $results;
 
     }
 

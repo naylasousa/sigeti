@@ -109,6 +109,39 @@ class Role extends AbstractModel
 
         return $statement->fetchAll(\PDO::FETCH_ASSOC);
     }
+    public function totalRoles(): ?int
+    {
+        $instance = new static();
+        $sql = "SELECT COUNT(*) FROM roles
+                WHERE deleted_at is null";
+
+        $statement = $instance->connection->prepare($sql);
+        $statement->execute();
+
+        $totalRoles = $statement->fetchColumn();
+        return $totalRoles;
+
+    }
+    public function recentRoles(): ?array
+    {
+        $instance = new static();
+        $sql = "SELECT * FROM roles
+                WHERE deleted_at is null
+                ORDER BY created_at DESC
+                LIMIT 5";
+
+        $statement = $instance->connection->prepare($sql);
+        $statement->execute();
+
+        $rows = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        $results = [];
+        foreach ($rows as $row) {
+            $results[] = static::hydrate($row);
+        }
+
+        return $results;
+
+    }
 
     public function validateBusinessRule(?int $ignoreId = null): array
     {
