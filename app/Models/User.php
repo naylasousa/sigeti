@@ -340,8 +340,10 @@ class User extends AbstractModel
     {
         $instance = new static();
         $sql = "SELECT COUNT(*) FROM users
-        WHERE deleted_at is null
-        AND status = 'ativo'";
+                WHERE deleted_at is null
+                AND status = 'inativo'
+                ORDER BY created_at DESC
+                LIMIT 5";
 
         $statement = $instance->connection->prepare($sql);
         $statement->execute();
