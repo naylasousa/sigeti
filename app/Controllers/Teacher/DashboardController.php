@@ -14,7 +14,7 @@ class DashboardController extends Controller
     {
         parent::__construct("App");
 
-        Auth::requireRole(Permission::VIEW_REQUESTER_DASHBOARD);
+        Auth::requirePermission(Permission::VIEW_REQUESTER_DASHBOARD);
     }
 
     public function index(): void
