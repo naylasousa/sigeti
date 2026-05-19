@@ -16,11 +16,7 @@ class Role extends AbstractModel
     ];
 
     protected array $required = [
-<<<<<<< HEAD
-        "name" => "O campo NOME é obrigatório."
-=======
         "name" => "O campo NOME é obrigatório.",
->>>>>>> 98cef16b49e68a4b5d2cb7c5d7968329b2854e0e
     ];
 
     protected bool $timestamps = true;
@@ -48,7 +44,7 @@ class Role extends AbstractModel
 
     public function getName(): string
     {
-        return $this->attributes["name"] ?? null;
+        return $this->attributes["name"];
     }
 
     public function setDescription(?string $description): void
@@ -69,11 +65,7 @@ class Role extends AbstractModel
         return $this->attributes["description"] ?? null;
     }
 
-<<<<<<< HEAD
-    public function setIsProtected(bool $isProtected)
-=======
     public function setIsProtected(bool $isProtected): void
->>>>>>> 98cef16b49e68a4b5d2cb7c5d7968329b2854e0e
     {
         $this->attributes["is_protected"] = $isProtected ? 1 : 0;
     }
@@ -83,7 +75,7 @@ class Role extends AbstractModel
         return (bool) ($this->attributes["is_protected"] ?? false);
     }
 
-    public function existsRoleByName(?string $name, ?int $ignoreId = null): bool
+    public function existsRoleByName(string $name, ?int $ignoreId = null): bool
     {
         $query = (new static())->where("name", "=", $name);
 

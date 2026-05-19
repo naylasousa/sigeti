@@ -6,10 +6,7 @@ use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Message;
 use App\Core\Permission;
-<<<<<<< HEAD
-=======
 use App\Models\Role\Permission as PermissionModel;
->>>>>>> 98cef16b49e68a4b5d2cb7c5d7968329b2854e0e
 use App\Models\Role\Role;
 use App\Models\Role\RolePermission;
 
@@ -18,42 +15,6 @@ class RolePermissionController extends Controller
     public function __construct()
     {
         parent::__construct("App");
-<<<<<<< HEAD
-    }
-    public function update(?array $data): void
-    {
-        Auth::requirePermission(Permission::EDIT_ROLE);
-        $permissionId = $data["id"];
-        $this->validateCsrfToken($data, "/admin/perfis/editar/" . $permissionId. "/permissoes");
-        $role = Role::find($data['id']);
-        if($role->isProtected()){
-            Message::warning("O oerfil é protegido e não pode ter as permissões editadas");
-            redirect("admin/perfis");
-            return;
-        }
-
-        $permissionIds = array_map('intval', $data['permissions'] ?? []);
-
-
-        try {
-            if(!$role){
-                Message::error("Esse perfil não existe!");
-                redirect("/admin/perfis");
-                return;
-            }
-            RolePermission::syncPermissions($role->getId(), $permissionIds);
-
-
-        } catch (\InvalidArgumentException $invalidArgumentException) {
-            Message::error($invalidArgumentException->getMessage());
-            redirect("/admin/perfis/editar/" . $permissionId);
-            return;
-        }
-
-        Message::success("Permissões atualizada com sucesso!");
-        redirect("/admin/perfis/editar/" . $permissionId );
-
-=======
         Auth::requirePermission(Permission::MANAGE_ROLE_PERMISSIONS);
     }
 
@@ -109,6 +70,5 @@ class RolePermissionController extends Controller
 
         Message::success("Permissões atualizadas com sucesso.");
         redirect("/admin/perfis/" . $role->getId() . "/permissoes");
->>>>>>> 98cef16b49e68a4b5d2cb7c5d7968329b2854e0e
     }
 }
