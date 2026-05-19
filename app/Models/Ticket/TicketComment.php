@@ -7,12 +7,14 @@ use App\Models\User;
 
 class TicketComment extends AbstractModel
 {
-    protected string $table = "tickets_comments";
-    protected string $primaryKey = "id";
+    protected string $table = 'tickets_comments';
+
+    protected string $primaryKey = 'id';
+
     protected array $fillable = [
         "ticket_id",
         "user_id",
-        "comment"
+        "comment",
     ];
 
     protected array $required = [
@@ -22,6 +24,7 @@ class TicketComment extends AbstractModel
     ];
 
     protected bool $timestamps = true;
+
     protected bool $softDelete = true;
 
     public function getId(): ?int
@@ -44,7 +47,7 @@ class TicketComment extends AbstractModel
         $this->attributes["user_id"] = $userId;
     }
 
-    public function getUserId(): int
+    public function getUserId(): ?int
     {
         return $this->attributes["user_id"];
     }
@@ -52,9 +55,16 @@ class TicketComment extends AbstractModel
     public function setComment(string $comment): void
     {
         $comment = trim(strip_tags($comment));
+
         if (strlen($comment) < 20) {
-            throw new \InvalidArgumentException("O COMENTÁRIO deve ter pelo menos 20 caracteres.");
+            throw new \InvalidArgumentException("O comentário deve ter pelo menos 20 caracteres.");
         }
+
+        //Novo
+        if (strlen($comment) > 1000) {
+            throw new \InvalidArgumentException("O comentário deve ter no máximo 1000 caracteres.");
+        }
+
         $this->attributes["comment"] = $comment;
     }
 
@@ -62,6 +72,7 @@ class TicketComment extends AbstractModel
     {
         return $this->attributes["comment"];
     }
+
     public function getCreatedAt(): string
     {
         return $this->attributes["created_at"];
@@ -70,7 +81,6 @@ class TicketComment extends AbstractModel
     public function ticket(): ?Ticket
     {
         return Ticket::find($this->getTicketId());
-
     }
 
     public function user(): ?User
@@ -78,31 +88,45 @@ class TicketComment extends AbstractModel
         return User::find($this->getUserId());
     }
 
-
-
+    //Novo
     public function validateBusinessRules(array $data): array
     {
         $errors = [];
 
-        $statusInvalid = [
-          Ticket::FINISHED,
-          Ticket::ARCHIVED
-        ];
-        $ticket = Ticket::find($data['ticket_id']);
-        if(in_array($ticket->getStatus(), $statusInvalid, true)) {
-            $errors[] = "Não é possivel comentar no chamado com status:" . $ticket->getStatus();
+        if (!empty($data["ticket_id"])) {
+            $ticket = Ticket::find((int)$data["ticket_id"]);
+
+            if (!$ticket) {
+                $errors[] = "Chamado não encontrado ou não existe.";
+                return $errors;
+            }
+
+            $blocked = [Ticket::FINISHED, Ticket::ARCHIVED];
+            if (in_array($ticket->getStatus(), $blocked, true)) {
+                $labels = [
+                    Ticket::FINISHED => "Finalizado",
+                    Ticket::ARCHIVED => "Arquivado",
+                ];
+
+                $label = $labels[$ticket->getStatus()];
+                $errors[] = "Não é possível comentar em um chamado com status '{$label}'.";
+            }
         }
+
+        if (!empty($data["user_id"])) {
+
+            $user = User::find((int)$data["user_id"]);
+
+            if (!$user) {
+                $errors[] = "Usuário não encontrado ou não existe.";
+            }
+        }
+
         return $errors;
     }
 
-
     public static function commentsByTicketId(int $ticketId): ?array
     {
-       return
-           (new static())
-               ->where("ticket_id", "=", $ticketId)
-               ->orderBy("created_at")
-               ->get();
-
+        return (new TicketComment())->where("ticket_id", "=", $ticketId)->get();
     }
 }

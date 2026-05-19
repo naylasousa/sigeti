@@ -3,6 +3,7 @@
 namespace App\Models\Department;
 
 use App\Core\AbstractModel;
+use App\Models\Ticket\Ticket;
 
 class Department extends AbstractModel
 {
@@ -14,7 +15,7 @@ class Department extends AbstractModel
         "name",
         "code",
         "description",
-        "address"
+        "address",
     ];
 
     protected array $required = [
@@ -23,9 +24,10 @@ class Department extends AbstractModel
     ];
 
     protected bool $timestamps = true;
+
     protected bool $softDelete = true;
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->attributes["id"];
     }
@@ -34,28 +36,32 @@ class Department extends AbstractModel
     {
         $name = trim(strip_tags($name));
 
-        if (strlen($name) < 5) {
-            throw new \InvalidArgumentException("O nome do departamento deve ter pelo menos 5 caracteres.");
+        if (strlen($name) < 3) {
+            throw new \InvalidArgumentException("O nome do departamento deve ter pelo menos 3 caracteres.");
         }
-        if (strlen($name) > 50) {
-            throw new \InvalidArgumentException("O nome do departamento deve ter até 50 caracteres.");
+
+        if (strlen($name) > 150) {
+            throw new \InvalidArgumentException("O nome do departamento deve ter no máximo 150 caracteres.");
         }
+
         $this->attributes["name"] = $name;
     }
-    public function getName(): string
+
+    public function getName(): ?string
     {
-        return $this->attributes["name"];
+        return $this->attributes["name"] ?? null;
     }
 
     public function setCode(string $code): void
     {
-        $code = trim($code);
+        $code = trim(strtoupper($code));
 
         if (strlen($code) < 2) {
             throw new \InvalidArgumentException("O código do departamento deve ter pelo menos 2 caracteres.");
         }
-        if (strlen($code) < 20) {
-            throw new \InvalidArgumentException("O código do departamento deve ter até 20 caracteres.");
+
+        if (strlen($code) > 20) {
+            throw new \InvalidArgumentException("O código do departamento deve ter no máximo 20 caracteres.");
         }
 
         $this->attributes["code"] = $code;
@@ -63,33 +69,35 @@ class Department extends AbstractModel
 
     public function getCode(): ?string
     {
-        return $this->attributes["code"];
+        return $this->attributes["code"] ?? null;
     }
-    public function setDescription(string $description): void
+
+    public function setDescription(?string $description): void
     {
-        $description = trim(strip_tags($description));
-        if (strlen($description) < 20) {
-            throw new \InvalidArgumentException("A descrição do pefil deve ter pelo menos 20 caracteres.");
+        if ($description !== null) {
+            $description = trim(strip_tags($description));
+
+            if (strlen($description) > 255) {
+                throw new \InvalidArgumentException("A descrição deve ter no máximo 255 caracteres.");
+            }
         }
-        if (strlen($description) > 100) {
-            throw new \InvalidArgumentException("A descrição do perfil deve ter até 100 caracteres.");
-        }
+
         $this->attributes["description"] = $description;
     }
+
     public function getDescription(): ?string
     {
         return $this->attributes["description"] ?? null;
     }
 
-    public function setAddress(string $address): void
+    public function setAddress(?string $address): void
     {
-        $address = trim(strip_tags($address));
+        if ($address !== null) {
+            $address = trim(strip_tags($address));
 
-        if (strlen($address) < 5) {
-            throw new \InvalidArgumentException("O endereço do departamento deve ter pelo menos 5 caracteres.");
-        }
-        if (strlen($address) < 50) {
-            throw new \InvalidArgumentException("O endereço do departamento deve ter até 50 caracteres.");
+            if (strlen($address) > 200) {
+                throw new \InvalidArgumentException("O endereço deve ter no máximo 200 caracteres.");
+            }
         }
 
         $this->attributes["address"] = $address;
@@ -99,6 +107,7 @@ class Department extends AbstractModel
     {
         return $this->attributes["address"] ?? null;
     }
+
     public function existsDepartmentByCode(string $code, ?int $ignoreId = null): bool
     {
         $sql = "SELECT COUNT(*) FROM {$this->table} WHERE code = :code AND deleted_at IS NULL";
@@ -114,7 +123,6 @@ class Department extends AbstractModel
 
         return (int)$statement->fetchColumn() > 0;
     }
-
 
     public function existsDepartmentByName(string $name, ?int $ignoreId = null): bool
     {
@@ -142,21 +150,8 @@ class Department extends AbstractModel
     public function existsTickets(): bool
     {
         return (new Ticket())
-                ->where("school_id", "=", $this->getId())
+                ->where("department_id", "=", $this->getId())
                 ->count() > 0;
-    }
-    public function totalDepartments(): ?int
-    {
-        $instance = new static();
-        $sql = "SELECT COUNT(*) FROM departments
-                WHERE deleted_at is null";
-
-        $statement = $instance->connection->prepare($sql);
-        $statement->execute();
-
-        $totalDepartments = $statement->fetchColumn();
-        return $totalDepartments;
-
     }
 
     public function validateBusinessRule(?int $ignoreId = null): array
@@ -174,4 +169,9 @@ class Department extends AbstractModel
         return $errors;
     }
 
+    public function totalDepartments(): ?int
+    {
+        return (new static())
+            ->count();
+    }
 }

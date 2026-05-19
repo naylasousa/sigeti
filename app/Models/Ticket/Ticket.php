@@ -4,45 +4,54 @@ namespace App\Models\Ticket;
 
 use App\Core\AbstractModel;
 use App\Models\Category;
-use App\Models\School;
+use App\Models\Department\Department;
+use App\Models\Department\UserDepartment;
 use App\Models\User;
+use PDO;
 
 class Ticket extends AbstractModel
 {
     protected string $table = 'tickets';
+
     protected string $primaryKey = 'id';
+
     protected array $fillable = [
         "title",
         "description",
-        "school_id",
+        "department_id",
         "category_id",
         "opened_by",
         "assigned_to",
         "status",
         "priority",
         "opened_at",
-        "closed_at",
-
+        "closed_at"
     ];
+
     protected array $required = [
-        "title" => "O campo titulo é obrigatório",
-        "description" => "o campo descrição é obrigatório",
-        "school_id" => "O campo Escola é obrigatorio",
-        "category_id" => "O campo Categoria é obrigatorio",
-        "opened_by" => "O campo Professor é obrigatorio",
-        "status" => "O campo Prioridade é obrigatorio",
-        "priority" => "O campo Prioridade é obrigatorio"
+        "title" => "O campo TÍTULO é obrigatório.",
+        "description" => "O campo DESCRIÇÃO é obrigatório.",
+        "department_id" => "O campo DEPARTAMENTO é obrigatório.",
+        "category_id" => "O campo CATEGORIA é obrigatório.",
+        "opened_by" => "O campo SOLICITANTE é obrigatório.",
+        "status" => "O campo STATUS é obrigatório.",
+        "priority" => "O campo PRIORIDADE é obrigatório."
     ];
 
     protected bool $timestamps = true;
+
     protected bool $softDelete = true;
 
     public const OPEN = "aberto";
+
     public const IN_PROGRESS = "em_andamento";
 
     public const WAITING = "aguardando";
+
     public const RESOLVED = "resolvido";
+
     public const FINISHED = "finalizado";
+
     public const ARCHIVED = "arquivado";
 
     private const STATUS = [
@@ -55,37 +64,24 @@ class Ticket extends AbstractModel
     ];
 
     public const LOW = "baixa";
+
     public const MEAN = "media";
+
     public const HIGH = "alta";
 
     private const PRIORITIES = [
         self::LOW,
         self::MEAN,
-        self::HIGH,
+        self::HIGH
     ];
-
+    
     private const ALLOWED_TRANSITIONS = [
-        self::OPEN => [
-            self::IN_PROGRESS,
-            self::ARCHIVED,
-        ],
-        self::IN_PROGRESS => [
-            self::WAITING,
-            self::RESOLVED,
-            self::ARCHIVED
-        ],
-        self::WAITING => [
-            self::IN_PROGRESS,
-            self::ARCHIVED
-        ],
-        self::RESOLVED => [
-            self::FINISHED
-        ],
-        self::FINISHED => [
-            self::ARCHIVED
-        ],
-        self::ARCHIVED => []
-
+        self::OPEN => [self::IN_PROGRESS, self::ARCHIVED],
+        self::IN_PROGRESS => [self::WAITING, self::RESOLVED, self::ARCHIVED],
+        self::WAITING => [self::IN_PROGRESS, self::ARCHIVED],
+        self::RESOLVED => [self::FINISHED],
+        self::FINISHED => [self::ARCHIVED],
+        self::ARCHIVED => [],
     ];
 
     public function getId(): int
@@ -93,20 +89,20 @@ class Ticket extends AbstractModel
         return $this->attributes["id"];
     }
 
-
     public function setTitle(string $title): void
     {
         $title = trim(strip_tags($title));
+
         if (strlen($title) < 10) {
-            throw new \InvalidArgumentException("O titulo deve ter pelo menos 10 caracteres!");
+            throw new \InvalidArgumentException("O título deve ter pelo menos 10 caracteres!");
         }
+
         if (strlen($title) > 35) {
-            throw new \InvalidArgumentException("O titulo deve ter no maximo 35 caracteres!");
+            throw new \InvalidArgumentException("O título deve ter no máximo 35 caracteres!");
         }
 
         $this->attributes["title"] = $title;
     }
-
 
     public function getTitle(): string
     {
@@ -116,26 +112,28 @@ class Ticket extends AbstractModel
     public function setDescription(string $description): void
     {
         $description = trim(strip_tags($description));
+
         if (strlen($description) < 30) {
             throw new \InvalidArgumentException("A descrição deve ter pelo menos 30 caracteres!");
         }
+
         $this->attributes["description"] = $description;
     }
 
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->attributes["description"];
     }
 
-
-    public function setSchoolId(int $schoolId): void
+    public function setDepartmentId(int $departmentId): void
     {
-        $this->attributes["school_id"] = $schoolId;
+        $this->attributes["department_id"] = $departmentId;
     }
 
-    public function getSchoolId(): int
+    //TODO alterar método para não retornar null, pois deve ter um departamento vinculado no ticket
+    public function getDepartmentId(): ?int
     {
-        return $this->attributes["school_id"];
+        return $this->attributes["department_id"] ?? null;
     }
 
     public function setCategoryId(int $categoryId): void
@@ -148,8 +146,7 @@ class Ticket extends AbstractModel
         return $this->attributes["category_id"];
     }
 
-
-    public function setOpenedBy(int $userId)
+    public function setOpenedBy(int $userId): void
     {
         $this->attributes["opened_by"] = $userId;
     }
@@ -159,24 +156,7 @@ class Ticket extends AbstractModel
         return $this->attributes["opened_by"];
     }
 
-
-    public function setStatus(?string $status)
-    {
-        $status = $status ?? self::OPEN;
-        if (!in_array($status, self::STATUS)) {
-            throw new \InvalidArgumentException("O status é invalido");
-        }
-        $this->attributes["status"] = $status;
-    }
-
-
-    public function getStatus(): string
-    {
-        return $this->attributes["status"];
-    }
-
-
-    public function setAssignedTo(?int $userId): void
+    public function setAssignedTo(int $userId): void
     {
         $this->attributes["assigned_to"] = $userId;
     }
@@ -186,12 +166,27 @@ class Ticket extends AbstractModel
         return $this->attributes["assigned_to"] ?? null;
     }
 
+    public function setStatus(?string $status): void
+    {
+        $status = $status ?? self::OPEN;
+
+        if (!in_array($status, self::STATUS)) {
+            throw new \InvalidArgumentException("O status é inválido");
+        }
+
+        $this->attributes["status"] = $status;
+    }
+
+    public function getStatus(): string
+    {
+        return $this->attributes["status"];
+    }
 
     public function setPriority(?string $priority): void
     {
         $priority = $priority ?? self::MEAN;
         if (!in_array($priority, self::PRIORITIES)) {
-            throw new \InvalidArgumentException("A prioridade é invalida!");
+            throw new \InvalidArgumentException("A prioridade é inválida.");
         }
         $this->attributes["priority"] = $priority;
     }
@@ -201,23 +196,22 @@ class Ticket extends AbstractModel
         return $this->attributes["priority"];
     }
 
-    public function setOpenedAt()
+    public function setOpenedAt(): void
     {
         $timezone = new \DateTimeZone(APP_TIMEZONE);
-        $now = new \DateTimeImmutable('now', $timezone);
+        $now = new \DateTimeImmutable("now", $timezone);
         $this->attributes["opened_at"] = $now->format("Y-m-d H:i:s");
     }
 
-    public function getOpenedAt()
+    public function getOpenedAt(): string
     {
         return $this->attributes["opened_at"];
-
     }
 
     public function setClosedAt(): void
     {
         $timezone = new \DateTimeZone(APP_TIMEZONE);
-        $now = new \DateTimeImmutable('now', $timezone);
+        $now = new \DateTimeImmutable("now", $timezone);
         $this->attributes["closed_at"] = $now->format("Y-m-d H:i:s");
     }
 
@@ -226,9 +220,9 @@ class Ticket extends AbstractModel
         return $this->attributes["closed_at"] ?? null;
     }
 
-    public function school(): ?School
+    public function department(): ?Department
     {
-        return $this->getSchoolId() > 0 ? School::find($this->getSchoolId()) : null;
+        return $this->getDepartmentId() > 0 ? Department::find($this->getDepartmentId()) : null;
     }
 
     public function category(): ?Category
@@ -239,7 +233,6 @@ class Ticket extends AbstractModel
     public function openedBy(): ?User
     {
         return $this->getOpenedBy() > 0 ? User::find($this->getOpenedBy()) : null;
-
     }
 
     public function assignedTo(): ?User
@@ -252,49 +245,88 @@ class Ticket extends AbstractModel
         $errors = [];
 
         if (!empty($data['category_id']) && !Category::find((int)$data['category_id'])) {
-            $errors[] = "Categoria não encontrada ou não existe!";
-
+            $errors[] = "Categoria não encontrada ou não existe.";
         }
-        if (!empty($data['school_id']) && !School::find((int)$data['school_id'])) {
-            $errors[] = "Categoria não encontrada ou não existe!";
+
+        if (!empty($data['department_id']) && !Department::find((int)$data['department_id'])) {
+            $errors[] = "Departamento não encontrado ou não existe.";
         }
 
         if (!empty($data['opened_by'])) {
-
             $openedBy = User::find((int)$data['opened_by']);
+
             if (!$openedBy) {
-                $errors[] = "Usuarios não encontrado ou não existe!";
+                $errors[] = "Usuário não encontrado ou não existe.";
+            } else {
+                $validDepartmentIds  = [];
 
-            } else if ($openedBy->getRole() !== User::TEACHER) {
-                $errors[] = "O usuario selecionado não tem o perfil de professor!";
-            }
-            $linksSchoolUser = $openedBy->schoolUserLinks();
+                /** @var UserDepartment $link */
+                foreach (UserDepartment::linksByUser($openedBy->getId()) ?? [] as $link) {
+                    $validDepartmentIds [] = $link->getDepartmentId();
+                }
 
-            $validSchoolsId = [];
-
-            foreach ($linksSchoolUser as $link) {
-                $validSchoolsId[] = $link->getSchoolId();
-            }
-            if (!in_array((int)$data['school_id'], $validSchoolsId, true)) {
-                $errors[] = "Escola não esta vinculada ao professor selecionado!";
-            }
-
-            if (!empty($data['assigned_to'])) {
-
-                $assignedTo = User::find((int)$data['assigned_to']);
-                if (!$assignedTo) {
-                    $errors[] = "Usuarios não encontrado ou não existe!";
-
-                } else if ($assignedTo->getRole() !== User::TECHNICIAN) {
-                    $errors[] = "O usuario selecionado não tem o perfil de tecnico!";
+                if (!empty($data['department_id']) && !in_array((int)$data['department_id'], $validDepartmentIds , true)) {
+                    $errors[] = "Departamento selecionado não está vinculada ao usuário selecionado.";
                 }
             }
+        }
 
+        if (!empty($data['assigned_to'])) {
+            $assignedTo = User::find((int)$data['assigned_to']);
 
+            if (!$assignedTo) {
+                $errors[] = "Técnico não encontrado ou não existe.";
+            }
         }
 
         return $errors;
     }
+
+    public function validateStatusTransition(string $newStatus): array
+    {
+        $current = $this->getStatus();
+
+        if ($newStatus === $current) {
+            return [];
+        }
+
+        $allowed = self::ALLOWED_TRANSITIONS[$current] ?? [];
+
+        if (!in_array($newStatus, $allowed, true)) {
+            $labels = [
+                self::OPEN => "Aberto",
+                self::IN_PROGRESS => "Em Andamento",
+                self::WAITING => "Aguardando",
+                self::RESOLVED => "Resolvido",
+                self::FINISHED => "Finalizado",
+                self::ARCHIVED => "Arquivado",
+            ];
+
+            $currentLabel = $labels[$current] ?? $current;
+            $newLabel = $labels[$newStatus] ?? $newStatus;
+
+            return ["Não é permitido alterar o status de '{$currentLabel}' para '{$newLabel}'."];
+        }
+
+        return [];
+    }
+
+    public function allOrdered(): array
+    {
+        $sql = "SELECT * FROM {$this->table}
+         WHERE deleted_at IS NULL   
+         ORDER BY 
+                FIELD(status, 'aberto', 'em_andamento', 'aguardando', 'resolvido', 'finalizado', 'arquivado'),
+                FIELD(priority, 'alta', 'media', 'baixa'),
+                opened_at DESC";
+
+        $statement = $this->connection->prepare($sql);
+        $statement->execute();
+
+        $rows = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        return array_map(static fn($row) => static::hydrate($row), $rows);
+    }
+
     public function validateBusinessRulesForTeacher(array $data): array
     {
         $errors = [];
@@ -306,158 +338,169 @@ class Ticket extends AbstractModel
         return $errors;
     }
 
-    public function validateTechnician(array $data): ?array
-    {
-        $errors = [];
-        if (!empty($data['assigned_to'])) {
-
-            $assignedTo = User::find((int)$data['assigned_to']);
-            if (!$assignedTo) {
-                $errors[] = "Usuarios não encontrado ou não existe!";
-
-            } else if ($assignedTo->getRole() !== User::TECHNICIAN) {
-                $errors[] = "O usuario selecionado não tem o perfil de tecnico!";
-            }
-        }
-        return $errors;
-    }
-
-    public function validateStatusTransition(string $newStatus): ?array
-    {
-        $errors = [];
-        $currentStatus = $this->getStatus();
-        if ($newStatus === $currentStatus) {
-            return [];
-        }
-        $allowedStatus = self::ALLOWED_TRANSITIONS[$currentStatus];
-        if (!in_array($newStatus, $allowedStatus, true)) {
-            $errors[] = "Não é permitido alterar o status de {$currentStatus} para {$newStatus}!";
-        }
-        return $errors;
-    }
-
-
-    public function ticketsOrderedByStatusPriorityAndOpeningDate(): array
+    public function allOrderedByUser(int $userId): array
     {
         $sql = "SELECT * FROM {$this->table}
-        WHERE deleted_at IS NULL
-        ORDER BY FIELD(status, 'aberto', 'em_andamento', 'aguardando','resolvido', 'finalizado', 'arquivado'),
-        FIELD(priority, 'alta', 'media', 'baixa'),
-        opened_at DESC
-        ";
-
+            WHERE opened_by = :user_id AND deleted_at IS NULL
+            ORDER BY
+                FIELD(status, 'aberto', 'em_andamento', 'aguardando', 'resolvido', 'finalizado', 'arquivado'),
+                FIELD(priority, 'alta', 'media', 'baixa'),
+                opened_at DESC";
 
         $statement = $this->connection->prepare($sql);
+        $statement->bindParam(':user_id', $userId, \PDO::PARAM_INT);
         $statement->execute();
-        $rows = $statement->fetchAll(\PDO::FETCH_ASSOC);
-        foreach ($rows as &$row) {
-            $results[] = static::hydrate($row);
-        }
-        return $results;
+
+        $rows = $statement->fetchAll(PDO::FETCH_ASSOC);
+        return array_map(static fn($row) => static::hydrate($row), $rows);
     }
 
-    public function ticketsOrderedByStatusPriorityAndOpeningDateByUser(int $userId): array
+    public function existsComments(): bool
     {
-        $sql = "SELECT * FROM {$this->table}
-        WHERE opened_by = :opened_by  AND deleted_at IS NULL
-        ORDER BY 
-        FIELD(status, 'aberto', 'em_andamento', 'aguardando','resolvido', 'finalizado', 'arquivado'),
-        FIELD(priority, 'alta', 'media', 'baixa'),
-        opened_at DESC
-        ";
-
-
-        $statement = $this->connection->prepare($sql);
-        $statement->bindParam(':opened_by', $userId, \PDO::PARAM_INT);
-        $statement->execute();
-        $rows = $statement->fetchAll(\PDO::FETCH_ASSOC);
-
-        $results = [];
-        foreach ($rows as $row) {
-            $results[] = static::hydrate($row);
-        }
-        return $results;
+        return (new TicketComment())->where("ticket_id", "=", $this->getId())->count() > 0;
     }
 
-    public function countTicketsByMonth(?int $userId = null, ?int $year = null): array
+    public function countByStatusCurrentYear(): array
     {
-        $year = $year ?? (int)date('Y');
+        $year = date('Y');
 
-         $sql = "select month(opened_at) as month, count(*) as quantity
-                 from {$this->table}
-                 where year(opened_at) = :year";
-
-        if($userId){
-            $sql .= " AND opened_by = :user_id ";
-        }
-        $sql .= " group by month(opened_at) order by month(opened_at);";
+        $sql = "SELECT status, COUNT(*) as total
+            FROM {$this->table}
+            WHERE deleted_at IS NULL
+              AND YEAR(opened_at) = :year
+            GROUP BY status";
 
         $statement = $this->connection->prepare($sql);
-        $statement->bindParam(":year", $year, \PDO::PARAM_INT);
-        if($userId){
-            $statement->bindParam(":user_id", $userId, \PDO::PARAM_INT);
-        }
+        $statement->bindParam(':year', $year, \PDO::PARAM_INT);
         $statement->execute();
 
         $rows = $statement->fetchAll(\PDO::FETCH_ASSOC);
 
-        $results = [];
-        for($count = 1; $count <= 12; $count++) {
-            $results[$count] = 0;
-        }
-        foreach ($rows as $row) {
-            $results[$row["month"]] = $row["quantity"];
-        }
-        return array_values($results);
-
-    }
-    public function countTicketsByCategory(?int $userId = null, ?int $year = null): array
-    {
-        $year = $year ?? date('Y');
-
-        $sql = "SELECT categories.name as label, count(*) as total
-            FROM tickets
-            INNER JOIN categories ON tickets.category_id = categories.id
-            where year(opened_at) = :year";
-
-        if($userId){
-            $sql .= " AND opened_by = :user_id ";
-        }
-        $sql .= " group by categories.name order by categories.name;";
-
-        $statement = $this->connection->prepare($sql);
-        $statement->bindParam(":year", $year);
-        if($userId){
-            $statement->bindParam(":user_id", $userId, \PDO::PARAM_INT);
-        }
-        $statement->execute();
-
-        $rows = $statement->fetchAll(\PDO::FETCH_ASSOC);
-
-        $results = [
-            "labels" => [],
-            "totals" => []
+        $result = [
+            self::OPEN => 0,
+            self::IN_PROGRESS => 0,
+            self::WAITING => 0,
+            self::RESOLVED => 0,
+            self::FINISHED => 0,
+            self::ARCHIVED => 0,
         ];
 
-
         foreach ($rows as $row) {
-            $results["labels"][] = $row["label"];
-            $results["totals"][] = $row["total"];
+            $result[$row['status']] = (int)$row['total'];
         }
 
-        return $results;
+        return $result;
     }
-    public function countTicketsByStatus(?int $userId = null, ?int $year = null ): array
+
+    public function countByMonthCurrentYear(): array
+    {
+        $year = date('Y');
+
+        $sql = "SELECT MONTH(opened_at) as month, COUNT(*) as total
+            FROM {$this->table}
+            WHERE deleted_at IS NULL
+              AND YEAR(opened_at) = :year
+            GROUP BY MONTH(opened_at)
+            ORDER BY month ASC";
+
+        $statement = $this->connection->prepare($sql);
+        $statement->bindParam(':year', $year, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $rows = $statement->fetchAll(\PDO::FETCH_ASSOC);
+
+        $result = array_fill(1, 12, 0);
+
+        foreach ($rows as $row) {
+            $result[(int) $row['month']] = (int) $row['total'];
+        }
+
+        return array_values($result);
+    }
+
+    public function countByCategoryCurrentYear(): array
+    {
+        $year = date('Y');
+
+        $sql = "
+        SELECT c.name AS label, COUNT(t.id) AS total
+        FROM tickets t
+        JOIN categories c ON c.id = t.category_id
+        WHERE YEAR(t.opened_at) = :year
+        GROUP BY c.name
+        ORDER BY c.name
+    ";
+
+        $statement = $this->connection->prepare($sql);
+        $statement->bindParam(':year', $year, \PDO::PARAM_INT);
+        $statement->execute();
+        $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
+
+        $data = [
+            'labels' => [],
+            'totals' => []
+        ];
+
+        if (!empty($result)) {
+
+            foreach ($result as $row) {
+
+                if (isset($row['label'])) {
+                    $data['labels'][] = $row['label'];
+                } else {
+                    $data['labels'][] = 'Sem nome';
+                }
+
+                if (isset($row['total'])) {
+                    $data['totals'][] = (int) $row['total'];
+                } else {
+                    $data['totals'][] = 0;
+                }
+            }
+
+        }
+
+        return $data;
+    }
+
+    public function resolutionRateCurrentYear(): int
+    {
+        $year = date('Y');
+
+        $sql = "SELECT
+                COUNT(*) as total,
+                SUM(CASE WHEN status IN ('resolvido', 'finalizado') THEN 1 ELSE 0 END) as resolved
+            FROM {$this->table}
+            WHERE deleted_at IS NULL
+              AND YEAR(opened_at) = :year";
+
+        $statement = $this->connection->prepare($sql);
+        $statement->bindParam(':year', $year, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        if ((int) $row['total'] === 0) {
+            return 0;
+        }
+
+        return (int) round(($row['resolved'] / $row['total']) * 100);
+    }
+
+    public function countTicketsByStatus(?int $userId = null, ?int $year = null): array
     {
         $year = $year ?? (int)date('Y');
+
         $sql = "SELECT
-                    status as status,
-                    count(*) as total
+                    status AS status,
+                    COUNT(*) AS total
                 FROM tickets
                 WHERE YEAR(opened_at) = :year";
+
         if($userId){
             $sql .= " AND opened_by = :user_id ";
         }
+
         $sql .= " GROUP BY status;";
 
         $statement = $this->connection->prepare($sql);
@@ -466,9 +509,11 @@ class Ticket extends AbstractModel
         if($userId){
             $statement->bindParam(":user_id", $userId, \PDO::PARAM_INT);
         }
+
         $statement->execute();
 
         $rows = $statement->fetchAll(\PDO::FETCH_ASSOC);
+
         $results = [
             self::OPEN => 0,
             self::IN_PROGRESS => 0,
@@ -479,10 +524,90 @@ class Ticket extends AbstractModel
         ];
 
         foreach ($rows as $row) {
-            $results[$row["status"]] = $row["total"];
+            $results[$row['status']] = $row['total'];
         }
+
         return $results;
     }
+
+    public function countTicketsByMonth(?int $userId = null, ?int $year = null): array
+    {
+        $year = $year ?? (int)date('Y');
+
+        $sql = "select month(opened_at) as month, count(*) as quantity
+                from {$this->table}
+                where year(opened_at) = :year";
+
+        if($userId){
+            $sql .= " AND opened_by = :user_id ";
+        }
+
+        $sql .= " group by month(opened_at) order by month(opened_at);";
+
+        $statement = $this->connection->prepare($sql);
+        $statement->bindParam(":year", $year, \PDO::PARAM_INT);
+
+        if($userId){
+            $statement->bindParam(":user_id", $userId, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+
+        $rows = $statement->fetchAll(\PDO::FETCH_ASSOC);
+
+        $results = [];
+        for ($count = 1; $count <= 12; $count++) {
+            $results[$count] = 0;
+        }
+
+        foreach ($rows as $row) {
+            $results[$row['month']] = $row['quantity'];
+        }
+
+        return array_values($results);
+
+    }
+
+    public function countTicketsByCategory(?int $userId = null, ?int $year = null): array
+    {
+        $year = $year ?? (int)date('Y');
+
+        $sql = "SELECT  categories.name as label, count(*) as total
+                FROM {$this->table}
+                INNER JOIN categories ON tickets.category_id = categories.id
+                where year(opened_at) = :year";
+
+        if($userId){
+            $sql .= " AND opened_by = :user_id ";
+        }
+
+        $sql .= " group by categories.name
+                order by categories.name;";
+
+        $statement = $this->connection->prepare($sql);
+        $statement->bindParam(":year", $year, \PDO::PARAM_INT);
+
+        if($userId){
+            $statement->bindParam(":user_id", $userId, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+
+        $rows = $statement->fetchAll(\PDO::FETCH_ASSOC);
+
+        $results = [
+            "labels" => [],
+            "totals" => []
+        ];
+
+        foreach ($rows as $row) {
+            $results["labels"][] = $row['label'];
+            $results["totals"][] = $row['total'];
+        }
+
+        return $results;
+    }
+
     public function avgResolutionDaysByMonthCurrentYear(?int $year = null): array
     {
         $year = $year ?? (int)date('Y');
@@ -554,19 +679,58 @@ class Ticket extends AbstractModel
 
         return $result;
     }
-    public function totalOpenTickets(): ?int
-    {
-        $instance = new static();
-        $sql = "SELECT COUNT(*) FROM tickets
-                WHERE deleted_at is null
-                AND status = 'aberto'";
 
-        $statement = $instance->connection->prepare($sql);
+    public function ticketsOrderedByStatusPriorityAndOpeningDate(): array
+    {
+        $sql = "SELECT * FROM {$this->table}
+                WHERE deleted_at IS NULL
+                ORDER BY 
+                    FIELD(status, 'aberto', 'em_andamento', 'aguardando', 'resolvido', 'finalizado', 'arquivado'),
+                    FIELD(priority, 'alta', 'media', 'baixa'),
+                    opened_at DESC
+                    ";
+
+        $statement = $this->connection->prepare($sql);
         $statement->execute();
 
-        $totalOpenTickets = $statement->fetchColumn();
-        return $totalOpenTickets;
+        $rows = $statement->fetchAll(PDO::FETCH_ASSOC);
 
+        $results = [];
+        foreach ($rows as $row) {
+            $results[] = static::hydrate($row);
+        }
+
+        return $results;
     }
 
+    public function ticketsOrderedByStatusPriorityAndOpeningDateByUser(int $userId): array
+    {
+        $sql = "SELECT * FROM {$this->table}
+                WHERE opened_by = :opened_by AND deleted_at IS NULL
+                ORDER BY 
+                    FIELD(status, 'aberto', 'em_andamento', 'aguardando', 'resolvido', 'finalizado', 'arquivado'),
+                    FIELD(priority, 'alta', 'media', 'baixa'),
+                    opened_at DESC
+                    ";
+
+        $statement = $this->connection->prepare($sql);
+        $statement->bindParam(":opened_by", $userId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $rows = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        $results = [];
+        foreach ($rows as $row) {
+            $results[] = static::hydrate($row);
+        }
+
+        return $results;
+    }
+
+    public function totalTicketsOpened(): ?int
+    {
+        return (new static())
+            ->where("status", "=", self::OPEN)
+            ->count();
+    }
 }

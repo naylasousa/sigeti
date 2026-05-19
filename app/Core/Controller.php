@@ -15,7 +15,7 @@ class Controller
 
     protected function validateCsrfToken(array $data, string $route): void
     {
-        if(!$data || !csrf_verify($data["_csrf"] ?? null)) {
+        if (!$data || !csrf_verify($data['_csrf'] ?? null)) {
             Message::error("Token de segurança inválido");
             redirect($route);
             return;
