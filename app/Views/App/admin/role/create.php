@@ -1,7 +1,7 @@
-<?= $this->layout('technician/app', [
-        "title" => $title ?? "Técnico | Nova Escola - " . APP_NAME,
-        "menuActive" => "escolas",
-        "submenuActive" => "nova",
+<?= $this->layout('admin/app', [
+        'title' => $title ?? "Admin | Novo Perfil - " . APP_NAME,
+        'menuActive' => 'perfis',
+        'submenuActive' => 'novo',
 ]) ?>
 
 <div id="main">
@@ -10,19 +10,20 @@
             <i class="bi bi-justify fs-3"></i>
         </a>
     </header>
+
     <div class="page-heading">
         <div class="page-title">
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
-                    <h3>Nova Escola</h3>
-                    <p class="text-subtitle text-muted">Preencha as informações para cadastrar uma nova escola</p>
+                    <h3>Novo Perfil</h3>
+                    <p class="text-subtitle text-muted">Preencha as informações para criar um novo perfil</p>
                 </div>
                 <div class="col-12 col-md-6 order-md-2 order-first">
                     <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a href="<?= url('/tecnico/dashboard') ?>">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="<?= url('/tecnico/escolas') ?>">Escolas</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Nova</li>
+                            <li class="breadcrumb-item"><a href="<?= url('/admin/perfis') ?>">Perfis</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Novo</li>
                         </ol>
                     </nav>
                 </div>
@@ -37,68 +38,53 @@
                     <div class="card">
                         <div class="card-header">
                             <h4 class="card-title">
-                                <i class="bi bi-building me-2"></i>
-                                Informações da Escola
+                                <i class="bi bi-shield-fill me-2"></i>
+                                Informações do Perfil
                             </h4>
                         </div>
                         <div class="card-body">
-                            <form action="<?= url('/tecnico/escolas/cadastrar') ?>" method="post">
-
+                            <form action="<?= url('/admin/perfis/cadastrar') ?>" method="post">
                                 <?= csrf_input() ?>
 
-                                <!-- Nome -->
                                 <div class="form-group">
-                                    <label for="name" class="form-label">Nome</label>
+                                    <label for="name" class="form-label">Nome do perfil</label>
                                     <div class="input-group">
                                         <span class="input-group-text">
-                                            <i class="bi bi-building"></i>
+                                            <i class="bi bi-shield-fill"></i>
                                         </span>
                                         <input type="text" name="name" id="name"
                                                class="form-control"
+                                               placeholder="Ex: Professor, Funcionário, Analista de TI"
                                                value="<?= old('name') ?>"
-                                               placeholder="Nome da escola"
                                                required>
                                     </div>
+                                    <small class="text-muted">O nome é livre — defina conforme a realidade da sua
+                                        organização.</small>
                                 </div>
 
-                                <!-- Código -->
                                 <div class="form-group">
-                                    <label for="code" class="form-label">Código</label>
+                                    <label for="description" class="form-label">Descrição</label>
                                     <div class="input-group">
                                         <span class="input-group-text">
-                                            <i class="bi bi-upc"></i>
+                                            <i class="bi bi-card-text"></i>
                                         </span>
-                                        <input type="text" name="code" id="code"
-                                               class="form-control"
-                                               value="<?= old('code') ?>"
-                                               placeholder="Código da escola (8 caracteres)"
-                                               maxlength="8"
-                                               required>
+                                        <textarea name="description" id="description"
+                                                  class="form-control"
+                                                  placeholder="Descreva as responsabilidades deste perfil"
+                                                  rows="3"><?= old('description') ?></textarea>
                                     </div>
-                                    <small class="text-muted">O código deve ter exatamente 8 caracteres.</small>
+                                    <small class="text-muted">Campo opcional.</small>
                                 </div>
 
-                                <!-- Endereço -->
-                                <div class="form-group">
-                                    <label for="address" class="form-label">Endereço</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">
-                                            <i class="bi bi-geo-alt-fill"></i>
-                                        </span>
-                                        <input type="text" name="address" id="address"
-                                               class="form-control"
-                                               value="<?= old('address') ?>"
-                                               placeholder="Endereço completo da escola"
-                                               required>
-                                    </div>
-                                </div>
-
-                                <!-- Botões -->
                                 <div class="form-group mt-4 d-flex gap-2">
                                     <button type="submit" class="btn btn-primary">
                                         <i class="bi bi-check-circle-fill me-1"></i>
-                                        Salvar Escola
+                                        Salvar Perfil
                                     </button>
+                                    <a href="<?= url('/admin/perfis') ?>" class="btn btn-secondary">
+                                        <i class="bi bi-arrow-left-circle-fill me-1"></i>
+                                        Cancelar
+                                    </a>
                                 </div>
                             </form>
                         </div>
@@ -116,11 +102,8 @@
             <div class="float-end">
                 <p>
                     Desenvolvido com
-                    <span class="text-danger">
-                        <i class="bi bi-heart-fill icon-mid"></i>
-                    </span>
-                    por
-                    <a href="" target="_blank"><?= APP_DEVELOPER ?></a>
+                    <span class="text-danger"><i class="bi bi-heart-fill icon-mid"></i></span>
+                    por <a href="" target="_blank"><?= APP_DEVELOPER ?></a>
                 </p>
             </div>
         </div>

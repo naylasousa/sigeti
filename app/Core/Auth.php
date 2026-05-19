@@ -6,7 +6,7 @@ use App\Models\Role\RolePermission;
 
 class Auth
 {
-    public static function user()
+    public static function user(): ?object
     {
         $session = new Session();
         return $session->auth ?? null;
@@ -17,16 +17,10 @@ class Auth
         return self::user() !== null;
     }
 
-    public static function role(): ?string
-    {
-        $user = self::user();
-        return $user->role ?? null;
-    }
-
     public static function roleId(): ?int
     {
         $user = self::user();
-        return isset($user->role_id) ? (int) $user->role_id : null;
+        return isset($user->role_id) ? (int)$user->role_id : null;
     }
 
     public static function hasPermission(string $permission): bool
@@ -40,23 +34,21 @@ class Auth
         return RolePermission::userHasPermission($roleId, $permission);
     }
 
+    public static function logout(): void
+    {
+        $session = new Session();
+        $session->unset("auth");
+    }
 
     public static function requireLogin(): void
     {
         if (!self::check()) {
-            Message::warning("Você não tem autorização de acesso a essa página");
+            Message::warning("Você precisa fazer login para continuar.");
             redirect("/entrar");
+            return;
         }
-    }
 
-    public static function requireRole(string $role): void
-    {
-        self::requireLogin();
-
-        if (self::role() !== $role) {
-          Message::warning("Você não tem autorização de acesso a essa página");
-            redirect("/entrar");
-        }
+        SessionTimeoutMiddleware::handle();
     }
 
     public static function requirePermission(string $permission): void
@@ -64,7 +56,6 @@ class Auth
         self::requireLogin();
 
         if (!self::hasPermission($permission)) {
-            Message::error("Você não tem autorização para acessar esta página.");
             redirect("/erro/403");
             return;
         }

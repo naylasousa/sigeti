@@ -12,7 +12,7 @@ $router->post("/sair", "AuthController@logout");
 
 $router->get("/cadastrar", "AuthController@create");
 $router->post("/cadastrar", "AuthController@store");
-$router->get("/cadastrar/sucesso", "AuthController@storySuccess");
+$router->get("/cadastrar/sucesso", "AuthController@storeSuccess");
 
 $router->get("/redefinir-senha", "AuthController@forgotPassword");
 $router->post("/redefinir-senha", "AuthController@sendResetLink");
